@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>YamTik | TikTok Downloader Tanpa Watermark</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f0c1f 0%, #1a1025 50%, #0a0815 100%);
+            color: #fff;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated gradient background */
+        .bg-animate {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .blob {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.4;
+            animation: moveBlob 25s infinite alternate;
+        }
+
+        .blob-1 {
+            background: #6c2bd9;
+            top: -200px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+
+        .blob-2 {
+            background: #ff6b2b;
+            bottom: -250px;
+            left: -150px;
+            animation-delay: 5s;
+            width: 500px;
+            height: 500px;
+        }
+
+        .blob-3 {
+            background: #00d4ff;
+            top: 40%;
+            left: 40%;
+            width: 400px;
+            height: 400px;
+            opacity: 0.2;
+            animation-delay: 10s;
+        }
+
+        @keyframes moveBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 80px) scale(1.2); }
+        }
+
+        /* Particle effect */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: floatParticle 15s infinite linear;
+        }
+
+        @keyframes floatParticle {
+            from { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            to { transform: translateY(-100vh) rotate(360deg); opacity: 0.5; }
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FF6B2B, #6C2BD9, #00D4FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(10deg); }
+        }
+
+        .logo i {
+            background: none;
+            background-clip: unset;
+            color: #FF6B2B;
+        }
+
+        .logo i:first-child {
+            color: #6C2BD9;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            opacity: 0.7;
+            letter-spacing: 1px;
+        }
+
+        /* Card utama */
+        .card {
+            background: rgba(20, 15, 35, 0.6);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        /* Format options */
+        .format-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #FF6B2B;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .format-options {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .format-card {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+
+        .format-card.active {
+            background: linear-gradient(135deg, rgba(108, 43, 217, 0.2), rgba(255, 107, 43, 0.2));
+            border-color: #6C2BD9;
+            box-shadow: 0 0 20px rgba(108, 43, 217, 0.3);
+        }
+
+        .format-card:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .format-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .format-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .format-desc {
+            font-size: 0.75rem;
+            opacity: 0.6;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #FF6B2B;
+            font-size: 0.65rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-top: 8px;
+        }
+
+        /* URL Input */
+        .url-section {
+            margin: 2rem 0;
+        }
+
+        .input-label {
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            display: block;
+            color: #00D4FF;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 20px;
+            font-size: 1.1rem;
+            color: #6C2BD9;
+        }
+
+        #urlInput {
+            width: 100%;
+            padding: 1.2rem 1.2rem 1.2rem 3rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 60px;
+            font-size: 0.95rem;
+            color: white;
+            outline: none;
+            transition: all 0.3s;
+            font-family: monospace;
+        }
+
+        #urlInput:focus {
+            border-color: #6C2BD9;
+            background: rgba(0, 0, 0, 0.6);
+            box-shadow: 0 0 15px rgba(108, 43, 217, 0.3);
+        }
+
+        /* Tombol */
+        .btn-download {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, #6C2BD9, #FF6B2B);
+            border: none;
+            border-radius: 60px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .btn-download:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(108, 43, 217, 0.4);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 2rem;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top: 3px solid #FF6B2B;
+            border-right: 3px solid #6C2BD9;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Result */
+        .result-container {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 32px;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .result-thumb img {
+            width: 140px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .result-info {
+            flex: 1;
+        }
+
+        .result-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-author {
+            color: #00D4FF;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+        }
+
+        .result-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+        }
+
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, #FF6B2B, #6C2BD9);
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .download-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .error-message {
+            background: rgba(255, 50, 50, 0.15);
+            border: 1px solid #FF6B2B;
+            border-radius: 24px;
+            padding: 1rem;
+            text-align: center;
+            color: #FF8888;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 3rem;
+            font-size: 0.75rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            .card {
+                padding: 1.5rem;
+            }
+            .format-options {
+                flex-direction: column;
+            }
+            .result-card {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animate">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <i class="fab fa-tiktok"></i>
+                <span>YamTik</span>
+                <i class="fas fa-download"></i>
+            </div>
+            <p class="tagline">Download video TikTok tanpa watermark — Cepat, Gratis, Berkualitas</p>
+        </div>
+
+        <div class="card">
+            <div class="format-section">
+                <div class="section-title">PILIH FORMAT</div>
+                <div class="format-options">
+                    <div class="format-card active" data-format="video">
+                        <div class="format-icon">🎬</div>
+                        <div class="format-name">No Watermark</div>
+                        <div class="format-desc">MP4 · Tanpa logo</div>
+                        <div class="badge">Recommended</div>
+                    </div>
+                    <div class="format-card" data-format="mp3">
+                        <div class="format-icon">🎵</div>
+                        <div class="format-name">MP3 Audio</div>
+                        <div class="format-desc">Audio saja · High Quality</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="url-section">
+                <div class="input-label">PASTE URL TIKTOK</div>
+                <div class="input-wrapper">
+                    <i class="fas fa-link"></i>
+                    <input type="text" id="urlInput" placeholder="https://vt.tiktok.com/ZS9YBwrrWW/ atau https://www.tiktok.com/@username/video/123456789">
+                </div>
+            </div>
+
+            <button class="btn-download" id="downloadBtn">
+                <i class="fas fa-cloud-download-alt"></i> AMBIL
+            </button>
+
+            <div id="loadingIndicator" class="loading hidden">
+                <div class="loader"></div>
+                <p>Memproses link TikTok, harap tunggu...</p>
+            </div>
+
+            <div id="resultContainer" class="result-container hidden"></div>
+        </div>
+
+        <div class="footer">
+            <p>YamTik © 2024 | Tidak menyimpan data | Download instan tanpa watermark</p>
+        </div>
+    </div>
+
+    <script>
+        // Particle effect
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.width = Math.random() * 5 + 2 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        let selectedFormat = 'video';
+
+        // Format selection
+        document.querySelectorAll('.format-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.format-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                selectedFormat = card.dataset.format;
+            });
+        });
+
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loadingDiv = document.getElementById('loadingIndicator');
+        const resultDiv = document.getElementById('resultContainer');
+
+        async function handleDownload() {
+            const url = urlInput.value.trim();
+            if (!url) {
+                showError('Masukkan link TikTok terlebih dahulu!');
+                return;
+            }
+
+            // Validasi URL TikTok
+            if (!url.includes('tiktok.com') && !url.includes('vt.tiktok')) {
+                showError('URL tidak valid! Pastikan link dari TikTok.');
+                return;
+            }
+
+            loadingDiv.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+
+            const endpoint = selectedFormat === 'video' ? '/api/download/video' : '/api/download/mp3';
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': application/json },
+                    body: JSON.stringify({ url: url })
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    showError(data.error);
+                } else if (data.success) {
+                    if (selectedFormat === 'mp3') {
+                        showMp3Result(data);
+                    } else {
+                        showVideoResult(data);
+                    }
+                } else {
+                    showError('Gagal memproses, pastikan link valid dan coba lagi');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Terjadi kesalahan: ' + error.message);
+            } finally {
+                loadingDiv.classList.add('hidden');
+            }
+        }
+
+        function showVideoResult(data) {
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-thumb">
+                        <img src="${data.cover || 'https://via.placeholder.com/140?text=YamTik'}" alt="thumbnail" onerror="this.src='https://via.placeholder.com/140?text=TikTok'">
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title">📹 ${escapeHtml(data.title).substring(0, 60)}</div>
+                        <div class="result-author"><i class="fab fa-tiktok"></i> @${escapeHtml(data.author)}</div>
+                        <div class="result-meta">⏱️ Durasi: ${data.duration} detik</div>
+                        <a href="${data.videoUrl}" class="download-btn" download target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-download"></i> Download Video (No Watermark)
+                        </a>
+                    </div>
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        function showMp3Result(data) {
+            resultDiv.innerHTML = `
+                <div class="result-card">
+                    <div class="result-thumb">
+                        <img src="${data.cover || 'https://via.placeholder.com/140?text=Audio'}" alt="cover" onerror="this.src='https://via.placeholder.com/140?text=MP3'">
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title">🎵 ${escapeHtml(data.title).substring(0, 60)}</div>
+                        <div class="result-author"><i class="fas fa-user"></i> ${escapeHtml(data.author)}</div>
+                        <div class="result-meta">🎧 Format MP3 · Siap diputar</div>
+                        <a href="${data.audioUrl}" class="download-btn" download target="_blank" rel="noopener noreferrer">
+                            <i class="fas fa-headphones"></i> Download MP3
+                        </a>
+                    </div>
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        function showError(msg) {
+            resultDiv.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}
+                </div>
+            `;
+            resultDiv.classList.remove('hidden');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        downloadBtn.addEventListener('click', handleDownload);
+
+        // Enter key support
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleDownload();
+        });
+    </script>
+</body>
+</html>
