@@ -1,0 +1,11 @@
+{
+  "name": "tiktok-downloader-premium",
+  "version": "1.0.0",
+  "description": "Professional TikTok Downloader - No Watermark, MP3, Slideshow, HD",
+  "scripts": {
+    "vercel-build": "echo Build completed"
+  },
+  "keywords": ["tiktok", "downloader", "vercel", "serverless"],
+  "author": "",
+  "license": "MIT"
+}
