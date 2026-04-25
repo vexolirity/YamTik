@@ -58,7 +58,7 @@ app.post('/api/download/video', async (req, res) => {
                 res.status(500).json({ error: 'Gagal memproses link, coba lagi' });
             }
         } catch (err) {
-            res.status(500).json({ error: 'Service sedang sibuk' });
+            res.status(500).json({ error: 'Service sedang sibuk: ' + err.message });
         }
     }
 });
@@ -93,7 +93,7 @@ app.post('/api/download/mp3', async (req, res) => {
             throw new Error('Gagal mengambil audio');
         }
     } catch (error) {
-        res.status(500).json({ error: 'Gagal ekstrak audio, pastikan link valid' });
+        res.status(500).json({ error: 'Gagal ekstrak audio: ' + error.message });
     }
 });
 
@@ -103,5 +103,6 @@ app.get('/', (req, res) => {
 
 app.listen(PORT, () => {
     console.log(`🚀 YamTik running at http://localhost:${PORT}`);
+    console.log(`📌 API Key: ${API_KEY}`);
     console.log(`🎵 TikTok Downloader siap digunakan!`);
 });
