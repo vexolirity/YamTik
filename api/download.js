@@ -121,3 +121,31 @@ export default async function handler(req, res) {
                           (responseData.result.images && responseData.result.images.length > 0);
         
         if (!hasContent) {
+            throw new Error('Tidak ada konten yang dapat didownload');
+        }
+        
+        console.log(`Success: ${url}`);
+        
+        return res.status(200).json(responseData);
+        
+    } catch (error) {
+        console.error('Error:', error.message);
+        
+        let errorMessage = 'Gagal memproses video. ';
+        
+        if (error.message.includes('timeout')) {
+            errorMessage += 'Waktu habis. Silakan coba lagi.';
+        } else if (error.message.includes('fetch')) {
+            errorMessage += 'Koneksi gagal. Periksa koneksi internet Anda.';
+        } else if (error.message.includes('JSON')) {
+            errorMessage += 'Response API tidak valid. Coba lagi.';
+        } else {
+            errorMessage += error.message;
+        }
+        
+        return res.status(500).json({
+            status: false,
+            message: errorMessage
+        });
+    }
+}
