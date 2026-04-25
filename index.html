@@ -296,6 +296,12 @@
             box-shadow: 0 10px 30px rgba(108, 43, 217, 0.4);
         }
 
+        .btn-download:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
         /* Loading */
         .loading {
             text-align: center;
@@ -396,6 +402,14 @@
             padding: 1rem;
             text-align: center;
             color: #FF8888;
+        }
+
+        .error-detail {
+            font-size: 0.75rem;
+            margin-top: 8px;
+            opacity: 0.7;
+            font-family: monospace;
+            word-break: break-all;
         }
 
         .hidden {
@@ -531,23 +545,47 @@
 
             // Validasi URL TikTok
             if (!url.includes('tiktok.com') && !url.includes('vt.tiktok')) {
-                showError('URL tidak valid! Pastikan link dari TikTok.');
+                showError('URL tidak valid! Pastikan link dari TikTok.\nContoh: https://vt.tiktok.com/... atau https://www.tiktok.com/@...');
                 return;
             }
 
+            // Disable button selama proses
+            downloadBtn.disabled = true;
             loadingDiv.classList.remove('hidden');
             resultDiv.classList.add('hidden');
 
             const endpoint = selectedFormat === 'video' ? '/api/download/video' : '/api/download/mp3';
 
             try {
+                console.log(`Mengirim request ke ${endpoint} dengan URL:`, url);
+                
                 const response = await fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': application/json },
+                    headers: { 
+                        'Content-Type': 'application/json'  // ← PERBAIKAN DI SINI!
+                    },
                     body: JSON.stringify({ url: url })
                 });
 
-                const data = await response.json();
+                console.log('Response status:', response.status);
+
+                // Cek response status
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Response error:', errorText);
+                    throw new Error(`Server error: ${response.status} ${response.statusText}`);
+                }
+
+                // Parse JSON dengan aman
+                let data;
+                try {
+                    data = await response.json();
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    throw new Error('Response dari server tidak valid (bukan JSON)');
+                }
+
+                console.log('Response data:', data);
 
                 if (data.error) {
                     showError(data.error);
@@ -558,13 +596,25 @@
                         showVideoResult(data);
                     }
                 } else {
-                    showError('Gagal memproses, pastikan link valid dan coba lagi');
+                    showError(data.message || 'Gagal memproses, pastikan link valid dan coba lagi');
                 }
             } catch (error) {
-                console.error('Error:', error);
-                showError('Terjadi kesalahan: ' + error.message);
+                console.error('Full error details:', error);
+                
+                // Tampilkan error detail untuk debugging
+                let errorMessage = 'Terjadi kesalahan: ';
+                if (error.message === 'Failed to fetch') {
+                    errorMessage += 'Tidak dapat terhubung ke server. Pastikan server backend berjalan (node server.js)';
+                } else if (error.name === 'SyntaxError') {
+                    errorMessage += 'Server mengembalikan response tidak valid. Cek console backend.';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                showError(errorMessage, true);
             } finally {
                 loadingDiv.classList.add('hidden');
+                downloadBtn.disabled = false;
             }
         }
 
@@ -606,10 +656,11 @@
             resultDiv.classList.remove('hidden');
         }
 
-        function showError(msg) {
+        function showError(msg, showDetail = false) {
             resultDiv.innerHTML = `
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i> ${escapeHtml(msg)}
+                    ${showDetail ? '<div class="error-detail">💡 Pastikan server backend berjalan di terminal: node server.js</div>' : ''}
                 </div>
             `;
             resultDiv.classList.remove('hidden');
