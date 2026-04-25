@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>YamTik | TikTok Downloader Tanpa Watermark</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Background Abstract -->
+    <div class="bg-abstract">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="gradient-orb orb-4"></div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i class="fab fa-tiktok"></i>
+                <span>YamTik</span>
+                <i class="fas fa-download"></i>
+            </div>
+            <h1>TIKTOK DOWNLOADER</h1>
+            <p class="tagline">Download video TikTok tanpa watermark. Gratis.</p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="card">
+            <!-- Format Pilihan -->
+            <div class="format-section">
+                <div class="section-title">PILIH FORMAT:</div>
+                <div class="format-options">
+                    <div class="format-card active" data-format="video">
+                        <div class="format-icon">🎬</div>
+                        <div class="format-name">No Watermark</div>
+                        <div class="format-desc">MP4 · Tanpa logo</div>
+                        <div class="badge">BEST QUALITY</div>
+                    </div>
+                    <div class="format-card" data-format="mp3">
+                        <div class="format-icon">🎵</div>
+                        <div class="format-name">MP3 Audio</div>
+                        <div class="format-desc">Audio saja · High Quality</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- URL Input -->
+            <div class="url-section">
+                <div class="input-label">PASTE URL TIKTOK:</div>
+                <div class="input-wrapper">
+                    <i class="fas fa-link"></i>
+                    <input type="text" id="urlInput" placeholder="https://vt.tiktok.com/ZS9YBwrrWW/">
+                </div>
+            </div>
+
+            <!-- Tombol Download -->
+            <button class="btn-download" id="downloadBtn">
+                <i class="fas fa-cloud-download-alt"></i> AMBIL
+            </button>
+
+            <!-- Loading -->
+            <div id="loadingIndicator" class="loading hidden">
+                <div class="loader"></div>
+                <p>Memproses link TikTok...</p>
+                <small>Harap tunggu, sedang mengambil data dari server</small>
+            </div>
+
+            <!-- Result -->
+            <div id="resultContainer" class="result-container hidden"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 YamTik | TikTok Downloader | Tanpa Watermark | Gratis Selamanya</p>
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+</body>
+</html>
