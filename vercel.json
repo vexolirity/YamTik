@@ -1,32 +1,17 @@
 {
-  "version": 2,
   "functions": {
     "api/download.js": {
-      "memory": 1024,
-      "maxDuration": 30,
-      "runtime": "nodejs18.x"
+      "maxDuration": 30
     }
   },
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/$1",
-      "methods": ["GET", "POST", "OPTIONS"]
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     },
     {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
-  "headers": [
-    {
       "source": "/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
+      "destination": "/index.html"
     }
   ]
 }
