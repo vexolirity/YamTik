@@ -1,7 +1,13 @@
-// API endpoint untuk TikTok Downloader
+// TikTok Downloader API - Fully Fixed
 const API_KEY = 'a7k3m9x2p4';
-const API_ALLINONE = 'https://api.neoxr.eu/api/tiktok?url={URL_TIKTOK}&apikey=a7k3m9x2p4';
-const API_TIKTOK = 'https://api.neoxr.eu/api/aio?url={URL_TIKTOK}&apikey=a7k3m9x2p4';
+
+// Multiple API endpoints for redundancy
+const APIS = [
+    `https://api.neoxr.eu/api/tiktok?apikey=${API_KEY}&url={URL}`,
+    `https://api.neoxr.eu/api/aio?apikey=${API_KEY}&url={URL}`,
+    `https://api.ryzendesu.vip/api/downloader/tiktok?url={URL}`,
+    `https://api.agung.me.id/api/download/tiktok?url={URL}`
+];
 
 // Helper untuk fetch dengan timeout
 async function fetchWithTimeout(url, timeout = 30000) {
@@ -9,7 +15,12 @@ async function fetchWithTimeout(url, timeout = 30000) {
     const timeoutId = setTimeout(() => controller.abort(), timeout);
     
     try {
-        const response = await fetch(url, { signal: controller.signal });
+        const response = await fetch(url, { 
+            signal: controller.signal,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
+        });
         clearTimeout(timeoutId);
         return response;
     } catch (error) {
@@ -18,45 +29,124 @@ async function fetchWithTimeout(url, timeout = 30000) {
     }
 }
 
-// Extract video ID dari URL
-function extractVideoId(url) {
-    const patterns = [
-        /tiktok\.com\/@[\w.]+\/video\/(\d+)/,
-        /tiktok\.com\/t\/([\w]+)/,
-        /vt\.tiktok\.com\/([\w]+)/,
-        /tiktok\.com\/@[\w.]+\/v\/video\/(\d+)/
-    ];
+// Extract video info dari response
+function extractMediaData(response, url) {
+    // Coba berbagai format response yang mungkin
+    let data = response;
     
-    for (let pattern of patterns) {
-        const match = url.match(pattern);
-        if (match) return match[1];
+    // Handle response dengan struktur berbeda
+    if (response.data) data = response.data;
+    if (response.result) data = response.result;
+    if (response.video) data = response;
+    
+    // Cari video URL (no watermark)
+    let videoUrl = data.video || 
+                   data.video_url || 
+                   data.nowatermark || 
+                   data.nowatermark_hd || 
+                   data.no_watermark ||
+                   data.play ||
+                   data.url;
+    
+    // Cari audio URL
+    let audioUrl = data.audio || 
+                   data.music || 
+                   data.audio_url || 
+                   data.mp3;
+    
+    // Cari informasi lainnya
+    const title = data.title || data.desc || 'TikTok Video';
+    const duration = data.duration || '00:00';
+    const views = data.views || data.play_count || '0';
+    const author = data.author || data.nickname || data.unique_id || 'Unknown';
+    const thumbnail = data.thumbnail || data.cover;
+    
+    // Jika videoUrl masih null, coba ekstrak dari berbagai field
+    if (!videoUrl) {
+        const fields = ['wm', 'watermark', 'hdplay', 'play', 'url_1', 'url_2'];
+        for (let field of fields) {
+            if (data[field] && typeof data[field] === 'string') {
+                videoUrl = data[field];
+                break;
+            }
+        }
     }
-    return null;
+    
+    // Clean URLs
+    if (videoUrl) videoUrl = videoUrl.replace(/\\/g, '');
+    if (audioUrl) audioUrl = audioUrl.replace(/\\/g, '');
+    
+    return {
+        success: true,
+        video_url: videoUrl,
+        audio_url: audioUrl || videoUrl, // fallback ke video jika audio tidak ada
+        title: title,
+        duration: duration,
+        views: views,
+        author: author,
+        thumbnail: thumbnail
+    };
+}
+
+// Coba semua API sampai berhasil
+async function tryAllApis(url) {
+    const errors = [];
+    
+    for (let i = 0; i < APIS.length; i++) {
+        const apiUrl = APIS[i].replace('{URL}', encodeURIComponent(url));
+        
+        try {
+            console.log(`Mencoba API ${i + 1}: ${APIS[i].split('?')[0]}`);
+            
+            const response = await fetchWithTimeout(apiUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            
+            const data = await response.json();
+            
+            // Cek apakah response valid
+            if (data && (data.video || data.nowatermark || data.data || data.result)) {
+                console.log(`API ${i + 1} berhasil!`);
+                return extractMediaData(data, url);
+            }
+            
+            errors.push(`API ${i + 1}: Response tidak valid`);
+            
+        } catch (error) {
+            console.log(`API ${i + 1} gagal: ${error.message}`);
+            errors.push(`API ${i + 1}: ${error.message}`);
+        }
+    }
+    
+    throw new Error(`Semua API gagal: ${errors.join('; ')}`);
 }
 
 // Validasi URL TikTok
 function isValidTikTokUrl(url) {
     const patterns = [
-        /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/[@a-zA-Z0-9_.]+\/video\/\d+/,
-        /https?:\/\/(www\.|vm\.|vt\.)?tiktok\.com\/t\/[\w]+/,
-        /https?:\/\/(www\.)?tiktok\.com\/@[\w.]+\/v\/video\/\d+/
+        /https?:\/\/(?:www\.|vm\.|vt\.|m\.)?tiktok\.com\/@[\w.-]+\/video\/\d+/,
+        /https?:\/\/(?:www\.|vm\.|vt\.|m\.)?tiktok\.com\/t\/[\w]+/,
+        /https?:\/\/(?:www\.)?tiktok\.com\/@[\w.-]+\/v\/\d+/,
+        /https?:\/\/(?:www\.|vm\.|vt\.)?tiktok\.com\/[\w]+/
     ];
     return patterns.some(pattern => pattern.test(url));
 }
 
-// API Handler utama
+// Main handler
 export default async function handler(req, res) {
-    // CORS headers
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // CORS Headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
+    // Handle preflight
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
     
+    // Only accept POST
     if (req.method !== 'POST') {
         return res.status(405).json({ 
             success: false, 
@@ -77,7 +167,7 @@ export default async function handler(req, res) {
     if (!isValidTikTokUrl(url)) {
         return res.status(400).json({ 
             success: false, 
-            message: 'URL TikTok tidak valid' 
+            message: 'URL TikTok tidak valid. Pastikan URL benar.' 
         });
     }
     
@@ -89,97 +179,58 @@ export default async function handler(req, res) {
     }
     
     try {
-        console.log(`Processing TikTok URL: ${url} in format: ${format}`);
+        console.log(`Processing: ${url} (${format})`);
         
-        // Gunakan API All-in-One dulu
-        let apiUrl = API_ALLINONE.replace('{URL_TIKTOK}', encodeURIComponent(url));
-        let response = await fetchWithTimeout(apiUrl);
-        
-        // Jika gagal, coba API kedua
-        if (!response.ok) {
-            console.log('API pertama gagal, mencoba API kedua...');
-            apiUrl = API_TIKTOK.replace('{URL_TIKTOK}', encodeURIComponent(url));
-            response = await fetchWithTimeout(apiUrl);
-        }
-        
-        if (!response.ok) {
-            throw new Error(`API response error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        console.log('API Response received');
-        
-        // Parse response dari API
-        let result;
-        if (data.status && data.data) {
-            result = data.data;
-        } else if (data.result) {
-            result = data.result;
-        } else {
-            result = data;
-        }
-        
-        // Extract video dan audio URLs
-        let videoUrl = result.video || result.video_url || result.play || result.nowatermark || result.watermark;
-        let audioUrl = result.audio || result.music || result.audio_url || result.mp3;
-        
-        // Jika videoUrl masih undefined, coba cari di object
-        if (!videoUrl && result.no_watermark) videoUrl = result.no_watermark;
-        if (!videoUrl && result.nowatermark_hd) videoUrl = result.nowatermark_hd;
-        
-        // Fallback jika API tidak mengembalikan URL
-        if (!videoUrl && !audioUrl) {
-            throw new Error('Tidak dapat mengekstrak URL media dari response API');
-        }
-        
-        // Untuk format audio, pastikan kita punya audio URL
-        if (format === 'audio' && !audioUrl && videoUrl) {
-            // Jika audio tidak tersedia tapi video ada, kita bisa extract audio nanti
-            audioUrl = videoUrl;
-        }
-        
-        const responseData = {
-            title: result.title || result.desc || 'TikTok Video',
-            duration: result.duration || 'N/A',
-            views: result.views || result.play_count || 'N/A',
-            author: result.author || result.nickname || 'Unknown',
-            video_url: videoUrl || null,
-            audio_url: audioUrl || videoUrl || null,
-            thumbnail: result.thumbnail || result.cover || null
-        };
+        // Coba semua API
+        const mediaData = await tryAllApis(url);
         
         // Validasi berdasarkan format
-        if (format === 'video' && !responseData.video_url) {
+        if (format === 'video' && !mediaData.video_url) {
             throw new Error('Video URL tidak tersedia untuk format ini');
         }
         
-        if (format === 'audio' && !responseData.audio_url) {
-            throw new Error('Audio URL tidak tersedia untuk format ini');
+        if (format === 'audio' && !mediaData.audio_url) {
+            // Jika audio tidak ada, kita tetap bisa download dari video
+            if (mediaData.video_url) {
+                mediaData.audio_url = mediaData.video_url;
+            } else {
+                throw new Error('Audio URL tidak tersedia');
+            }
         }
         
+        // Return response
         return res.status(200).json({
             success: true,
             message: 'Berhasil mendapatkan media',
-            data: responseData
+            data: {
+                video_url: mediaData.video_url,
+                audio_url: mediaData.audio_url,
+                title: mediaData.title,
+                duration: mediaData.duration,
+                views: mediaData.views,
+                author: mediaData.author,
+                thumbnail: mediaData.thumbnail
+            }
         });
         
     } catch (error) {
-        console.error('Download error:', error.message);
+        console.error('Error detail:', error);
         
         let errorMessage = 'Gagal mendownload video. ';
         
-        if (error.name === 'AbortError') {
+        if (error.message.includes('fetch') || error.message.includes('network')) {
+            errorMessage += 'Periksa koneksi internet Anda.';
+        } else if (error.message.includes('timeout')) {
             errorMessage += 'Waktu habis. Silakan coba lagi.';
-        } else if (error.message.includes('fetch')) {
-            errorMessage += 'Koneksi gagal. Periksa koneksi internet Anda.';
+        } else if (error.message.includes('API')) {
+            errorMessage += 'Server sedang sibuk. Coba lagi nanti.';
         } else {
             errorMessage += error.message;
         }
         
         return res.status(500).json({
             success: false,
-            message: errorMessage,
-            error: error.message
+            message: errorMessage
         });
     }
 }
