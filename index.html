@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>TikTok Downloader - Tanpa Watermark & MP3</title>
+    <title>TikTok Downloader - No Watermark & MP3</title>
     <style>
         * {
             margin: 0;
@@ -12,112 +12,153 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(145deg, #0f0f1e 0%, #1a1a2e 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 24px;
+            position: relative;
+        }
+
+        /* Background effect */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(255, 0, 80, 0.08) 0%, transparent 50%);
+            pointer-events: none;
         }
 
         .container {
-            max-width: 550px;
+            max-width: 560px;
             width: 100%;
-            background: white;
-            border-radius: 32px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            background: rgba(18, 18, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 48px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
             overflow: hidden;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #000000 0%, #1a1a2e 100%);
-            color: white;
-            padding: 30px 24px;
+            background: linear-gradient(135deg, #ff0050 0%, #ff6b6b 50%, #ffb347 100%);
+            padding: 32px 28px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: shimmer 8s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translate(-30%, -30%); }
+            100% { transform: translate(30%, 30%); }
         }
 
         .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .header h1 i {
             font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, #ffe0e0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 8px;
+            position: relative;
         }
 
         .header p {
-            opacity: 0.9;
+            color: rgba(255, 255, 255, 0.9);
             font-size: 14px;
+            font-weight: 500;
+            position: relative;
         }
 
+        /* Format Selection */
         .format-section {
-            padding: 24px 24px 16px;
-            background: #f8f9fa;
+            padding: 28px 24px 20px;
         }
 
         .format-title {
             font-weight: 600;
-            margin-bottom: 12px;
-            color: #333;
-            font-size: 14px;
+            margin-bottom: 16px;
+            color: #a0a0c0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .format-options {
             display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .format-card {
             flex: 1;
-            min-width: 140px;
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
-            padding: 16px;
+            background: rgba(30, 30, 45, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 18px 12px;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .format-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,0,80,0.1) 0%, rgba(255,107,107,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .format-card:hover::before {
+            opacity: 1;
         }
 
         .format-card.active {
-            border-color: #667eea;
-            background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.2);
-        }
-
-        .format-card.video.active {
-            border-color: #ff6b6b;
-            background: rgba(255,107,107,0.05);
-        }
-
-        .format-card.audio.active {
-            border-color: #4ecdc4;
-            background: rgba(78,205,196,0.05);
+            border-color: #ff0050;
+            background: linear-gradient(135deg, rgba(255, 0, 80, 0.15) 0%, rgba(255, 107, 107, 0.1) 100%);
+            box-shadow: 0 8px 20px rgba(255, 0, 80, 0.2);
         }
 
         .format-icon {
-            font-size: 32px;
+            font-size: 36px;
             margin-bottom: 8px;
         }
 
         .format-name {
             font-weight: 700;
             font-size: 16px;
+            color: white;
             margin-bottom: 4px;
         }
 
         .format-desc {
             font-size: 11px;
-            color: #888;
+            color: #8888aa;
         }
 
+        /* Input Section */
         .input-section {
             padding: 0 24px 20px;
         }
@@ -125,71 +166,102 @@
         .input-label {
             font-size: 13px;
             font-weight: 600;
-            margin-bottom: 8px;
-            color: #555;
-            display: block;
+            margin-bottom: 10px;
+            color: #a0a0c0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.3px;
         }
 
         .url-input {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 16px;
+            padding: 16px 20px;
+            background: rgba(25, 25, 40, 0.9);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px;
             font-size: 14px;
+            color: white;
             transition: all 0.3s ease;
-            font-family: monospace;
+            font-family: 'Monaco', 'Courier New', monospace;
         }
 
         .url-input:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #ff0050;
+            background: rgba(30, 30, 50, 0.95);
+            box-shadow: 0 0 0 3px rgba(255, 0, 80, 0.1);
         }
 
+        .url-input::placeholder {
+            color: #55557a;
+        }
+
+        /* Download Button */
         .download-btn {
             width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 18px;
+            background: linear-gradient(135deg, #ff0050 0%, #ff6b6b 100%);
             color: white;
             border: none;
-            border-radius: 16px;
-            font-size: 18px;
+            border-radius: 40px;
+            font-size: 17px;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            margin-top: 16px;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .download-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .download-btn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+            box-shadow: 0 12px 25px rgba(255, 0, 80, 0.4);
         }
 
         .download-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
+        /* Result Section */
         .result-section {
-            padding: 0 24px 24px;
+            padding: 0 24px 28px;
         }
 
         .result-card {
-            background: #f8f9fa;
-            border-radius: 20px;
+            background: rgba(25, 25, 40, 0.8);
+            border-radius: 28px;
             padding: 20px;
-            margin-top: 16px;
+            margin-top: 20px;
             display: none;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: slideUp 0.4s ease;
         }
 
-        .result-card.show {
-            display: block;
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
+        @keyframes slideUp {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -197,120 +269,180 @@
             }
         }
 
-        .video-preview {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 16px;
+        .result-card.show {
+            display: block;
         }
 
-        .info-text {
-            font-size: 14px;
-            color: #555;
-            margin-bottom: 8px;
+        .video-preview {
+            width: 100%;
+            border-radius: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
         }
 
         .info-title {
             font-weight: 700;
             font-size: 16px;
-            margin-bottom: 8px;
-            color: #333;
+            color: white;
+            margin-bottom: 6px;
+        }
+
+        .info-meta {
+            font-size: 12px;
+            color: #8888aa;
+            margin-bottom: 16px;
         }
 
         .action-buttons {
             display: flex;
             gap: 12px;
-            margin-top: 16px;
         }
 
         .action-btn {
             flex: 1;
             padding: 12px;
             border: none;
-            border-radius: 12px;
+            border-radius: 40px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
             text-align: center;
             text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .download-item {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
             color: white;
         }
 
-        .loading {
+        .copy-item {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .download-item:hover, .copy-item:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
             border-top-color: white;
             animation: spin 0.6s linear infinite;
-            margin-right: 8px;
+            margin-right: 10px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
+        /* Error Message */
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(255, 71, 87, 0.15);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff6b6b;
+            padding: 14px 18px;
+            border-radius: 20px;
             font-size: 13px;
             margin-top: 16px;
             display: none;
+            backdrop-filter: blur(10px);
         }
 
         .error-message.show {
             display: block;
-            animation: slideIn 0.3s ease;
+            animation: slideUp 0.3s ease;
         }
 
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #00b894;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1000;
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer */
         .footer {
-            padding: 16px;
+            padding: 20px 24px;
             text-align: center;
             font-size: 11px;
-            color: #aaa;
-            background: #f8f9fa;
-            border-top: 1px solid #e0e0e0;
+            color: #55557a;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.03);
         }
 
-        @media (max-width: 480px) {
+        /* Responsive */
+        @media (max-width: 500px) {
+            body {
+                padding: 16px;
+            }
             .container {
-                border-radius: 24px;
+                border-radius: 32px;
             }
             .format-options {
                 flex-direction: column;
             }
-            .format-card {
-                min-width: auto;
+            .header h1 {
+                font-size: 26px;
             }
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        /* Audio Player Style */
+        .audio-player {
+            background: linear-gradient(135deg, #ff0050, #ff6b6b);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .audio-player audio {
+            width: 100%;
+            margin-top: 12px;
+            border-radius: 40px;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>
-                <i>🎵</i> TikTok Downloader
-            </h1>
-            <p>Download video tanpa watermark & audio MP3 • Gratis</p>
+            <h1>🎵 TIKTOK DOWNLOADER</h1>
+            <p>Download video TikTok tanpa watermark. Gratis.</p>
         </div>
 
         <div class="format-section">
-            <div class="format-title">📱 PILIH FORMAT:</div>
+            <div class="format-title">━━━ PILIH FORMAT ━━━</div>
             <div class="format-options">
-                <div class="format-card video" data-format="video">
+                <div class="format-card" data-format="video">
                     <div class="format-icon">🎬</div>
                     <div class="format-name">No Watermark</div>
                     <div class="format-desc">MP4 · Tanpa logo</div>
                 </div>
-                <div class="format-card audio" data-format="audio">
+                <div class="format-card" data-format="audio">
                     <div class="format-icon">🎵</div>
                     <div class="format-name">MP3 Audio</div>
                     <div class="format-desc">Audio saja</div>
@@ -319,17 +451,19 @@
         </div>
 
         <div class="input-section">
-            <label class="input-label">🔗 PASTE URL TIKTOK:</label>
-            <input type="text" class="url-input" id="urlInput" placeholder="https://vt.tiktok.com/... atau https://www.tiktok.com/...">
+            <div class="input-label">
+                <span>🔗</span> PASTE URL TIKTOK:
+            </div>
+            <input type="text" class="url-input" id="urlInput" placeholder="https://vt.tiktok.com/...">
             <button class="download-btn" id="downloadBtn">⬇️ AMBIL</button>
         </div>
 
         <div class="result-section" id="resultSection">
             <div class="error-message" id="errorMessage"></div>
             <div class="result-card" id="resultCard">
-                <div id="videoContainer"></div>
+                <div id="mediaContainer"></div>
                 <div class="info-title" id="resultTitle"></div>
-                <div class="info-text" id="resultMeta"></div>
+                <div class="info-meta" id="resultMeta"></div>
                 <div class="action-buttons" id="actionButtons"></div>
             </div>
         </div>
@@ -339,6 +473,190 @@
         </div>
     </div>
 
-    <script src="api.js"></script>
+    <script>
+        // Configuration
+        const API_BASE = '/api';
+        let currentFormat = 'video';
+        let currentData = null;
+
+        // DOM Elements
+        const formatCards = document.querySelectorAll('.format-card');
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const resultCard = document.getElementById('resultCard');
+        const errorMessageDiv = document.getElementById('errorMessage');
+        const mediaContainer = document.getElementById('mediaContainer');
+        const resultTitle = document.getElementById('resultTitle');
+        const resultMeta = document.getElementById('resultMeta');
+        const actionButtons = document.getElementById('actionButtons');
+
+        // Format Selection
+        formatCards.forEach(card => {
+            card.addEventListener('click', () => {
+                formatCards.forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                currentFormat = card.dataset.format;
+                // Hide result when format changes
+                resultCard.classList.remove('show');
+            });
+        });
+
+        // Helper Functions
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        function showLoading() {
+            downloadBtn.disabled = true;
+            downloadBtn.innerHTML = '<span class="loading-spinner"></span> Memproses...';
+            hideError();
+            resultCard.classList.remove('show');
+        }
+
+        function hideLoading() {
+            downloadBtn.disabled = false;
+            downloadBtn.innerHTML = '⬇️ AMBIL';
+        }
+
+        function showError(message) {
+            errorMessageDiv.textContent = '❌ ' + message;
+            errorMessageDiv.classList.add('show');
+            setTimeout(() => {
+                errorMessageDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        function hideError() {
+            errorMessageDiv.classList.remove('show');
+        }
+
+        function isValidUrl(url) {
+            return url.includes('tiktok.com');
+        }
+
+        function displayResult(data, format) {
+            resultCard.classList.add('show');
+            
+            if (format === 'video') {
+                mediaContainer.innerHTML = `
+                    <video class="video-preview" controls controlsList="nodownload">
+                        <source src="${data.video_url}" type="video/mp4">
+                        Browser tidak mendukung video tag.
+                    </video>
+                `;
+                resultTitle.textContent = data.title || 'Video TikTok';
+                resultMeta.textContent = `📊 Durasi: ${data.duration || 'N/A'} • 👁️ ${formatViews(data.views)} views • 👤 ${data.author || 'Unknown'}`;
+                actionButtons.innerHTML = `
+                    <a href="${data.video_url}" download class="action-btn download-item" target="_blank">
+                        ⬇️ Download Video (MP4)
+                    </a>
+                    <button class="action-btn copy-item" onclick="copyToClipboard('${data.video_url}')">
+                        📋 Copy Link
+                    </button>
+                `;
+            } else {
+                mediaContainer.innerHTML = `
+                    <div class="audio-player">
+                        <div style="font-size: 48px; margin-bottom: 10px;">🎵</div>
+                        <div style="font-weight: 600; margin-bottom: 10px;">Audio Siap Download</div>
+                        <audio controls>
+                            <source src="${data.audio_url}" type="audio/mpeg">
+                        </audio>
+                    </div>
+                `;
+                resultTitle.textContent = data.title || 'Audio TikTok';
+                resultMeta.textContent = `🎵 Format: MP3 • 📊 Kualitas: High Quality • 👤 ${data.author || 'Unknown'}`;
+                actionButtons.innerHTML = `
+                    <a href="${data.audio_url}" download class="action-btn download-item" target="_blank">
+                        ⬇️ Download MP3
+                    </a>
+                    <button class="action-btn copy-item" onclick="copyToClipboard('${data.audio_url}')">
+                        📋 Copy Link
+                    </button>
+                `;
+            }
+            currentData = data;
+        }
+
+        function formatViews(views) {
+            if (!views) return 'N/A';
+            if (typeof views === 'number') {
+                if (views >= 1000000) return (views / 1000000).toFixed(1) + 'M';
+                if (views >= 1000) return (views / 1000).toFixed(1) + 'K';
+                return views.toString();
+            }
+            return views;
+        }
+
+        window.copyToClipboard = function(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('✅ Link berhasil disalin!');
+            }).catch(() => {
+                showError('Gagal menyalin link');
+            });
+        };
+
+        // Main Download Function
+        async function downloadTikTok() {
+            const url = urlInput.value.trim();
+            
+            if (!url) {
+                showError('Masukkan URL TikTok terlebih dahulu!');
+                return;
+            }
+            
+            if (!isValidUrl(url)) {
+                showError('URL tidak valid! Pastikan URL berasal dari TikTok.');
+                return;
+            }
+            
+            showLoading();
+            
+            try {
+                const response = await fetch(`${API_BASE}/download`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        url: url,
+                        format: currentFormat
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok || !data.success) {
+                    throw new Error(data.message || 'Gagal memproses video');
+                }
+                
+                displayResult(data.data, currentFormat);
+                showToast('✅ Berhasil! Video siap download');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'Terjadi kesalahan. Silakan coba lagi.');
+                resultCard.classList.remove('show');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Event Listeners
+        downloadBtn.addEventListener('click', downloadTikTok);
+        
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                downloadTikTok();
+            }
+        });
+
+        // Set default active format
+        document.querySelector('[data-format="video"]').classList.add('active');
+    </script>
 </body>
 </html>
